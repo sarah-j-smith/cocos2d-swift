@@ -30,6 +30,7 @@
 #import "CCNode_Private.h"
 #import "CCDirector_Private.h"
 #import "CCAnimationManager_Private.h"
+#import "CCScheduler_Private.h"
 
 #import "CCFileUtils.h"
 #import "CGPointExtension.h"
@@ -42,7 +43,7 @@
 #import "CCTexture.h"
 #import "CCColor.h"
 #import "CCProtocols.h"
-#import "CCScheduler.h"
+
 
 #ifdef CCB_ENABLE_UNZIP
 #import "SSZipArchive.h"
@@ -744,19 +745,20 @@ static inline float readFloat(CCBReader *self)
     }
     else if (type == kCCBPropTypeBlendmode)
     {
-        int src = readIntWithSign(self, NO);
-        int dst = readIntWithSign(self, NO);
-        
 #if DEBUG_READER_PROPERTIES
 		valueString = [NSString stringWithFormat:@"{%i, %i}", src, dst];
 #endif
 
         if (setProp)
         {
-						[(id<CCBlendProtocol>)node setBlendMode:[CCBlendMode blendModeWithOptions:@{
-							CCBlendFuncSrcColor:@(src),
-							CCBlendFuncDstColor:@(dst),
-						}]];
+            [(id <CCBlendProtocol>) node setBlendMode:[CCBlendMode blendModeWithOptions:@{
+                    CCBlendFuncSrcColor : @(readIntWithSign(self, NO)),
+                    CCBlendFuncSrcAlpha : @(readIntWithSign(self, NO)),
+                    CCBlendFuncDstColor : @(readIntWithSign(self, NO)),
+                    CCBlendFuncDstAlpha : @(readIntWithSign(self, NO)),
+                    CCBlendEquationColor : @(readIntWithSign(self, NO)),
+                    CCBlendEquationAlpha : @(readIntWithSign(self, NO))
+            }]];
         }
     }
     else if (type == kCCBPropTypeFntFile)
@@ -1397,7 +1399,7 @@ SelectorNameForProperty(objc_property_t property)
     
     if(animationManager.fixedTimestep)
     {
-#warning        node.actionManager.fixedMode = YES;
+        node.scene.scheduler.actionsRunInFixedMode = YES;
     }
     
     // Read animated properties

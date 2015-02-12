@@ -28,7 +28,6 @@
 /* Idea of decoupling Window from Director taken from OC3D project: http://code.google.com/p/oc3d/
  */
 
-#warning We should not be using some monotonic time function instead of gettimeofday()
 #include <sys/time.h>
 
 #import "CCDirector_Private.h"
@@ -50,7 +49,8 @@
 #import "CCDeviceInfo.h"
 #import "CCTransition.h"
 #import "Platforms/CCNS.h"
-#import "Support/CCFileUtils.h"
+#import "CCFileUtils.h"
+#import "CCImage.h"
 #import "ccUtils.h"
 
 #if __CC_PLATFORM_IOS
@@ -92,23 +92,7 @@ extern NSString * cocos2dVersion(void);
 	CCFrameBufferObject *_framebuffer;
 }
 
-@synthesize animationInterval = _animationInterval;
-@synthesize runningScene = _runningScene;
-@synthesize displayStats = _displayStats;
-@synthesize nextDeltaTimeZero = _nextDeltaTimeZero;
 @synthesize paused = _isPaused;
-@synthesize animating = _animating;
-@synthesize sendCleanupToScene = _sendCleanupToScene;
-@synthesize runningThread = _runningThread;
-@synthesize notificationNode = _notificationNode;
-@synthesize delegate = _delegate;
-@synthesize totalFrames = _totalFrames;
-@synthesize secondsPerFrame = _secondsPerFrame;
-
-+ (CCDirector *)sharedDirector
-{
-    return [CCDirector currentDirector];
-}
 
 static NSString * const CCDirectorCurrentKey = @"CCDirectorCurrentKey";
 static NSString * const CCDirectorStackKey = @"CCDirectorStackKey";
@@ -128,7 +112,7 @@ CCDirectorBindCurrent(CCDirector *director)
 	}
 }
 
-NSMutableArray *
+static NSMutableArray *
 CCDirectorStack()
 {
     NSMutableArray *stack = [NSThread currentThread].threadDictionary[CCDirectorStackKey];
@@ -199,7 +183,7 @@ CCDirectorStack()
 		
 		// Force the graphics API to be selected if it hasn't already done so.
 		// Startup code is annoyingly different for iOS/Mac/Android.
-		[[CCDeviceInfo sharedDeviceInfo] graphicsAPI];
+		[CCDeviceInfo graphicsAPI];
 		_framebuffer = [[CCFrameBufferObjectClass alloc] init];
 	}
 
@@ -222,7 +206,7 @@ CCDirectorStack()
         return;
     
     [CCDirector pushCurrentDirector:self];
-    
+
     /* calculate "global" dt */
 	[self calculateDeltaTime];
 
@@ -392,13 +376,16 @@ CCDirectorStack()
 
 		// it could be nil
 		if( view ) {
-            
+#if !__CC_PLATFORM_ANDROID
 			[self createStatsLabel];
+#endif
 			[self setProjection: _projection];
 		}
 
+#if !__CC_PLATFORM_ANDROID
 		// Dump info once OpenGL was initilized
 		[[CCDeviceInfo sharedDeviceInfo] dumpInfo];
+#endif
 }
 
 
@@ -421,7 +408,6 @@ CCDirectorStack()
 		[self setProjection:_projection];
 		
 		[[CCFileUtils sharedFileUtils] buildSearchResolutionsOrder];
-		[self createStatsLabel];
 	}
 }
 
@@ -909,9 +895,6 @@ static const float CCFPSLabelItemHeight = 32;
 			_frames = 0;
 			_accumDt = 0;
 
-//			sprintf(format,"%.1f",frameRate);
-//			[FPSLabel setCString:format];
-
 			NSString *fpsstr = [[NSString alloc] initWithFormat:@"%.1f", _frameRate];
 			[_FPSLabel setString:fpsstr];
 			
@@ -953,9 +936,6 @@ static const float CCFPSLabelItemHeight = 32;
 		[[CCFileUtils sharedFileUtils] purgeCachedEntries];
 	}
 
-	CCTexturePixelFormat currentFormat = [CCTexture defaultAlphaPixelFormat];
-	[CCTexture setDefaultAlphaPixelFormat:CCTexturePixelFormat_RGBA4444];
-
 	unsigned char *data;
 	NSUInteger data_len;
 	CGFloat contentScale = 0;
@@ -964,16 +944,17 @@ static const float CCFPSLabelItemHeight = 32;
 	NSData *nsdata = [NSData dataWithBytes:data length:data_len];
 	CGDataProviderRef imgDataProvider = CGDataProviderCreateWithCFData( (__bridge CFDataRef) nsdata);
 	CGImageRef imageRef = CGImageCreateWithPNGDataProvider(imgDataProvider, NULL, true, kCGRenderingIntentDefault);
-	CCTexture *texture = [[CCTexture alloc] initWithCGImage:imageRef contentScale:contentScale];
 	CGDataProviderRelease(imgDataProvider);
+	
+	CCImage *image = [[CCImage alloc] initWithCGImage:imageRef contentScale:contentScale options:nil];
 	CGImageRelease(imageRef);
+    
+	CCTexture *texture = [[CCTexture alloc] initWithImage:image options:nil];
 
 	_FPSLabel = [[CCFPSLabel alloc]  initWithString:@"00.0" texture:texture];
 	_SPFLabel = [[CCFPSLabel alloc]  initWithString:@"0.000" texture:texture];
 	_drawsLabel = [[CCFPSLabel alloc]  initWithString:@"000" texture:texture];
 
-	[CCTexture setDefaultAlphaPixelFormat:currentFormat];
-	
 	CGPoint offset = [self convertToGL:ccp(0, (self.flipY == 1.0) ? 0 : self.view.bounds.size.height)];
 	CGPoint pos = ccpAdd(CC_DIRECTOR_STATS_POSITION, offset);
 	[_drawsLabel setPosition: ccpAdd( ccp(0,34), pos ) ];

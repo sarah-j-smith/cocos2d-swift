@@ -42,8 +42,17 @@
 // 'Radius Mode' in Particle Designer uses a fixed emit rate of 30 hz. Since that can't be guarateed in cocos2d,
 //  cocos2d uses a another approach, but the results are almost identical.
 
+#if __CC_PLATFORM_IOS || __CC_PLATFORM_MAC
 
 #import <ImageIO/ImageIO.h>
+
+#elseif __CC_PLATFORM_ANDROID
+
+#import <CoreGraphics/CGImageSource.h>
+#import <AndroidKit/AndroidBase64.h>
+
+#endif
+
 
 #import "ccMacros.h"
 
@@ -57,7 +66,7 @@
 #import "CCFile_Private.h"
 
 @implementation CCParticleSystemBase
-@synthesize active = _active, duration = _duration;
+@synthesize particlesActive = _particlesActive, duration = _duration;
 @synthesize sourcePosition = _sourcePosition, posVar = _posVar;
 @synthesize particleCount = _particleCount;
 @synthesize life = _life, lifeVar = _lifeVar;
@@ -246,7 +255,7 @@
                 NSAssert(textureData64, @"CCParticleSystem: Couldn't load texture");
 
                 // Gzipped image data.
-                NSData *textureData = [[NSData alloc] initWithBase64Encoding:textureData64];
+                NSData *textureData = CC_DECODE_BASE64(textureData64);
                 NSAssert(textureData != NULL, @"CCParticleSystem: error decoding textureImageData");
 
                 CCStreamedImageSource *streamedSource = [[CCStreamedImageSource alloc] initWithStreamBlock:^{
@@ -286,7 +295,7 @@
         _allocatedParticles = numberOfParticles;
 		
 		// default, active
-		_active = YES;
+		_particlesActive = YES;
 
 		// default blend function
 		self.blendMode = [CCBlendMode premultipliedAlphaMode];
@@ -435,14 +444,14 @@
 
 -(void) stopSystem
 {
-	_active = NO;
+	_particlesActive = NO;
 	_elapsed = _duration;
 	_emitCounter = 0;
 }
 
 -(void) resetSystem
 {
-	_active = YES;
+	_particlesActive = YES;
 	_elapsed = 0;
 	for(int i = 0; i < _particleCount; ++i) {
 		_CCParticle *p = &_particles[i];
@@ -470,7 +479,7 @@
 #pragma mark ParticleSystem - MainLoop
 -(void) update: (CCTime) dt
 {
-	if( _active && _emissionRate ) {
+	if( _particlesActive && _emissionRate ) {
 		float rate = 1.0f / _emissionRate;
 		
 		//issue #1201, prevent bursts of particles, due to too high emitCounter

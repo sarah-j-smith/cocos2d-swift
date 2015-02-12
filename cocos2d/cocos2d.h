@@ -61,7 +61,6 @@
 #import "CCColor.h"
 #import "CCImage.h"
 #import "CCTexture.h"
-#import "CCTexturePVR.h"
 #import "CCSpriteFrame.h"
 #import "CCShader.h"
 #import "CCResponder.h"
@@ -129,6 +128,10 @@
 #import "CCActionInterval.h"
 #import "CCActionProgressTimer.h"
 #import "CCActionTween.h"
+
+// Animations:
+#import "CCAnimation.h"
+#import "CCAnimationCache.h"
 
 // Physics
 #import "CCPhysicsBody.h"

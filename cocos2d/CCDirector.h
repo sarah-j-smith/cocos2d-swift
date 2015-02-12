@@ -33,7 +33,6 @@
 #import "CCRenderer.h"
 #import "CCView.h"
 
-#warning should remove this one we clean up the delegate
 #if __CC_PLATFORM_IOS
 #import <UIKit/UIKit.h>
 #endif
@@ -88,10 +87,6 @@
 /** Returns a Boolean value indicating whether the CCDirector supports the specified orientation. Default value is YES (supports all possible orientations) */
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
-/** Called when projection is resized (due to layoutSubviews on the view). This is important to respond to in order to setup your scene with the proper dimensions (which only exist after the first call to layoutSubviews) so that you can set your scene as early as possible to avoid startup flicker
-  - */
--(void) directorDidReshapeProjection:(CCDirector*)director;
-
 #endif // __CC_PLATFORM_IOS
 
 @end
@@ -141,8 +136,8 @@ typedef NS_ENUM(NSUInteger, CCDirectorProjection) {
 
  Since the CCDirector is a singleton, the standard way to use its methods and properties is:
  
- - `[[CCDirector sharedDirector] methodName];`
- - `[CCDirector sharedDirector].aProperty;`
+ - `[[CCDirector currentDirector] methodName];`
+ - `[CCDirector currentDirector].aProperty;`
 
  The CCDirector is responsible for:
  
@@ -223,11 +218,10 @@ typedef NS_ENUM(NSUInteger, CCDirectorProjection) {
 @property (nonatomic, readwrite, weak) id<CCDirectorDelegate> delegate;
 
 
-/** @name Singleton Accessor */
-
-/** @returns The shared director instance. */
-+(CCDirector*)sharedDirector __attribute__((deprecated));
+/** @returns The director for the currently active CCView */
 +(CCDirector*)currentDirector;
++(CCDirector*)sharedDirector __attribute__((deprecated));
+
 
 /** @name Accessing OpenGL Thread */
 

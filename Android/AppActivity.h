@@ -1,7 +1,7 @@
 /*
- * cocos2d for iPhone: http://www.cocos2d-swift.org
+ * SpriteBuilder: http://www.spritebuilder.org
  *
- * Copyright (c) 2014 Cocos2D Authors
+ * Copyright (c) 2014 Apportable Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,28 +22,10 @@
  * THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
 
-@class CCFileMetaData;
+#import "CCActivity.h"
 
-/**
- The protocol a file utils database must conform to.
- 
- @since 4.0
- */
-@protocol CCFileUtilsDatabaseProtocol <NSObject>
-
-@required
-/**
- Returns an instance of CCFileMetaData for a given filename and search path.
- 
- @param filename   The filename to search for. Note: filenames are the relative path to a search path including the filename, e.g. images/vehicles/car.png
- @param searchPath A search path for the filename.
- 
- @return Metadata of the filename and search path pair.
- 
- @since 4.0
- */
-- (CCFileMetaData *)metaDataForFileNamed:(NSString *)filename inSearchPath:(NSString *)searchPath;
+BRIDGE_CLASS("com.apportable.GLActivity")
+@interface PROJECTIDENTIFIERActivity : CCActivity
 
 @end

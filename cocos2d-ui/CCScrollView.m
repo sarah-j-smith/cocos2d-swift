@@ -23,6 +23,7 @@
  */
 
 #import "ccMacros.h"
+#import "CCAction_Private.h"
 
 #if __CC_PLATFORM_IOS
 #import <UIKit/UIGestureRecognizerSubclass.h>
@@ -54,8 +55,8 @@
 #define kCCScrollViewMaxOuterDistBeforeBounceBack 50.0
 #define kCCScrollViewMinVelocityBeforeBounceBack 100.0
 
-#define kCCScrollViewActionXTag 8080
-#define kCCScrollViewActionYTag 8081
+#define CCScrollViewActionXTag @"CCScrollViewActionXTag"
+#define CCScrollViewActionYTag @"CCScrollViewActionYTag"
 
 #pragma mark -
 #pragma mark Helper classes
@@ -418,7 +419,7 @@
 			}] rate:2];
             CCActionCallFunc* callFunc = [CCActionCallFunc actionWithTarget:self selector:@selector(xAnimationDone)];
             action = [CCActionSequence actions:action, callFunc, nil];
-            action.tag = kCCScrollViewActionXTag;
+            action.name = CCScrollViewActionXTag;
             [self.camera runAction:action];
         }
         if (yMoved)
@@ -434,7 +435,7 @@
 			}] rate:2];
             CCActionCallFunc* callFunc = [CCActionCallFunc actionWithTarget:self selector:@selector(yAnimationDone)];
             action = [CCActionSequence actions:action, callFunc, nil];
-            action.tag = kCCScrollViewActionYTag;
+            action.name = CCScrollViewActionYTag;
             [self.camera runAction:action];
         }
     }
@@ -443,8 +444,8 @@
 #if __CC_PLATFORM_MAC
 		_lastPosition = self.scrollPosition;
 #endif
-        [self.camera stopActionByTag:kCCScrollViewActionXTag];
-        [self.camera stopActionByTag:kCCScrollViewActionYTag];
+        [self.camera stopActionByName:CCScrollViewActionXTag];
+        [self.camera stopActionByName:CCScrollViewActionYTag];
         self.camera.position = newPos;
     }
 }
@@ -638,14 +639,14 @@
     _startScrollPos = self.scrollPosition;
     
     _isPanning = YES;
-    [self.camera stopActionByTag:kCCScrollViewActionXTag];
-    [self.camera stopActionByTag:kCCScrollViewActionYTag];
+    [self.camera stopActionByName:CCScrollViewActionXTag];
+    [self.camera stopActionByName:CCScrollViewActionYTag];
 
 }
 
 - (void) handleTouchEnded:(CGPoint) rawVelocity
 {
-    CCDirector* dir = [CCDirector sharedDirector];
+    CCDirector* dir = [CCDirector currentDirector];
 
     rawVelocity = [dir convertToGL:rawVelocity];
     rawVelocity = [self convertToNodeSpace:rawVelocity];
@@ -806,8 +807,12 @@
         return NO;
     }
     
+    [CCDirector pushCurrentDirector:self.director];
     // Check that the gesture is in the scroll view
-    return [self clippedHitTestWithWorldPos:[touch locationInWorld]];
+    BOOL hit = [self clippedHitTestWithWorldPos:[touch locationInWorld]];
+    [CCDirector popCurrentDirector];
+    
+    return hit;
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
@@ -914,8 +919,6 @@
 
 - (BOOL)onScroll:(AndroidMotionEvent *)start end:(AndroidMotionEvent *)end distanceX:(float)dx distanceY:(float)dy
 {
-    [CCDirector bindDirector:self.director];
-
     _isPanning = YES;
     _velocity = CGPointZero;
     
@@ -925,20 +928,23 @@
     if(phase == CCTouchPhaseCancelled || phase == CCTouchPhaseEnded)
         _rawScrollTranslation = CGPointMake(0.0f, 0.0f);
     
-    float scaleFactor = [self.director view].contentScaleFactor;
-
+    CCDirector *director = self.director;
+    float scaleFactor = [director view].contentScaleFactor;
+    
     dx /= scaleFactor;
     dy /= scaleFactor;
 
     _rawScrollTranslation.x -= dx;
     _rawScrollTranslation.y -= dy;
     
-    CCDirector* dir = self.director;
     [[CCActivity currentActivity] runOnGameThread:^{
+        [CCDirector pushCurrentDirector:director];
         
-        CGPoint translation = [dir convertToGL:_rawScrollTranslation];
+        CGPoint translation = [director convertToGL:_rawScrollTranslation];
         translation = [self convertToNodeSpace:translation];
         
+        // Is it possible for this to be anything other than a moved event?
+        // Somebody with more Android experience should weigh in.
         if (phase == CCTouchPhaseBegan)
         {
             [self touchBeganAtTranslation:translation];
@@ -946,12 +952,12 @@
         else if (phase == CCTouchPhaseMoved)
         {
             // Calculate the translation in node space
-            CGPoint translation = ccpSub(_rawTranslationStart, translation);
+            translation = ccpSub(_rawTranslationStart, translation);
             [self handlePanFrom:_startScrollPos delta:translation];
         }
         else if (phase == CCTouchPhaseEnded)
         {
-            // stub
+            // onScroll does not recieve end events.
         }
         else if (phase == CCTouchPhaseCancelled)
         {
@@ -962,15 +968,16 @@
             
             [self setScrollPosition:self.scrollPosition animated:NO];
         }
+        
+        [CCDirector popCurrentDirector];
     } waitUntilDone:YES];
     
-    [CCDirector bindDirector:nil];
-
     return YES;
 }
 
 - (BOOL)onFling:(AndroidMotionEvent *)start end:(AndroidMotionEvent *)end velocityX:(float)vx velocityY:(float)vy
 {
+    // Static!?! That can't be right.
     static CGPoint rawTranslationFling;
 
     CCTouchPhase phase = [self handleGestureEvent:start end:end];
@@ -978,7 +985,8 @@
     if(phase == CCTouchPhaseCancelled || phase == CCTouchPhaseEnded)
         rawTranslationFling = CGPointMake(0.0f, 0.0f);
 
-    float scaleFactor = [self.director view].contentScaleFactor;
+    CCDirector* director = self.director;
+    float scaleFactor = [director view].contentScaleFactor;
     float x0 = [start xForPointerIndex:0] / scaleFactor;
     float x1 = [end xForPointerIndex:0] / scaleFactor;
     
@@ -998,12 +1006,14 @@
     rawTranslationFling.x -= dx / scaleFactor;
     rawTranslationFling.y -= dy / scaleFactor;
     
-    CCDirector* dir = self.director;
     [[CCActivity currentActivity] runOnGameThread:^{
+        [CCDirector pushCurrentDirector:director];
 
-        CGPoint translation = [dir convertToGL:rawTranslationFling];
+        CGPoint translation = [director convertToGL:rawTranslationFling];
         translation = [self convertToNodeSpace:translation];
         
+        // Do fling events ever send anything other than end events?
+        // Somebody with more Android experience should weigh in.
         if (phase == CCTouchPhaseBegan)
         {
             [self scrollViewWillBeginDragging];
@@ -1025,6 +1035,8 @@
             
             [self setScrollPosition:self.scrollPosition animated:NO];
         }
+        
+        [CCDirector popCurrentDirector];
     } waitUntilDone:YES];
     return YES;
 }

@@ -33,6 +33,7 @@
 #import <Foundation/Foundation.h>
 
 #import "ccMacros.h"
+#import "ccUtils.h"
 #import "CGPointExtension.h"
 #import "CCTMXXMLParser.h"
 #import "CCTiledMap.h"
@@ -274,6 +275,7 @@
 
 			[_tilesets addObject:tileset];
 		}
+        _parentElement = TMXPropertyTileSet;
 
 	}
 	else if([elementName isEqualToString:@"tileoffset"]) {
@@ -482,8 +484,7 @@
 		_storingCharacters = NO;
 
 		CCTiledMapLayerInfo *layer = [_layers lastObject];
-        
-        NSData *decoded = [[NSData alloc] initWithBase64Encoding:_currentString];
+        NSData *decoded = CC_DECODE_BASE64(_currentString);
         NSAssert(decoded, @"Could not decode tilemap data.");
 
 		if( _layerAttribs & (TMXLayerAttribGzip | TMXLayerAttribZlib) ) {

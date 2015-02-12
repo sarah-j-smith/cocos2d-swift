@@ -59,7 +59,7 @@
     NSMutableDictionary* _nodeSequences;
     NSMutableDictionary* _baseValues;
     
-    NSInteger _animationManagerId;
+    NSString *_animationManagerId;
     CCBSequence* _runningSequence;
     CCBSequence* _lastSequence;
     
@@ -67,8 +67,6 @@
     
 //    CCScheduler* _scheduler;
     NSMutableArray* _currentActions;
-    
-    BOOL _loop;
     
 }
 
