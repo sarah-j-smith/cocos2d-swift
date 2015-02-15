@@ -959,7 +959,7 @@ TestBasicSequenceHelper(id self, CCPhysicsNode *physicsNode, CCNode *parent, CCN
     for(int i = 0; i < 100; i++)
 	{
 		float desired  = (float)i * 0.1f * 100.0f/10.0f + (float)i * 0.1f * 200.0f/10.0f;
-		//NSLog(@"node1.position.x=  %0.2f   desired = %0.2f",body1.absolutePosition.x, desired);
+		NSLog(@"node1.position.x=  %0.2f   desired = %0.2f",body1.absolutePosition.x, desired);
 		XCTAssertEqualWithAccuracy(body1.absolutePosition.x, desired , accuracy, @"Not in the right position");
 		[scheduler update:0.10f];
 	}

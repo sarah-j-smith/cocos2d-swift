@@ -268,6 +268,9 @@
 		E525F0C6F4B0C3F0BCAD1CA1 /* CCFileLocatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E525F93DE6657D8B7D99485D /* CCFileLocatorTests.m */; };
 		E525FAC4141DA9B33B972BC0 /* CCFileLocatorDatabaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E525F98589D25C8CCF99E8B6 /* CCFileLocatorDatabaseTests.m */; };
 		E525FB731133965ECDFF5BBE /* FileSystemTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E525F53CBA0B423333E6D62A /* FileSystemTestCase.m */; };
+		F61927441A8DABC50048C26C /* CCStateMachineTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F61927431A8DABC50048C26C /* CCStateMachineTests.m */; };
+		F61927511A8DB4E20048C26C /* CCStateMachineTest.m in Sources */ = {isa = PBXBuildFile; fileRef = F61927501A8DB4E20048C26C /* CCStateMachineTest.m */; };
+		F61927521A8DB4E20048C26C /* CCStateMachineTest.m in Sources */ = {isa = PBXBuildFile; fileRef = F61927501A8DB4E20048C26C /* CCStateMachineTest.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -538,6 +541,8 @@
 		E525FCB52B23A4F29E8D6D64 /* CCPackagesTestFixturesAndHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCPackagesTestFixturesAndHelpers.h; sourceTree = "<group>"; };
 		E525FE52BE5D10499A27CE7C /* CCSpriteFrameCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCSpriteFrameCacheTests.m; sourceTree = "<group>"; };
 		E525FF94F200689F83438E37 /* CCPackagesTestFixturesAndHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCPackagesTestFixturesAndHelpers.m; sourceTree = "<group>"; };
+		F61927431A8DABC50048C26C /* CCStateMachineTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCStateMachineTests.m; sourceTree = "<group>"; };
+		F61927501A8DB4E20048C26C /* CCStateMachineTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CCStateMachineTest.m; path = "cocos2d-ui-tests/tests/CCStateMachineTest.m"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -619,6 +624,7 @@
 				92324E2918EB635500D78D3F /* CCReaderTest.m */,
 				D32FDE8519B645CA0078CC16 /* CCTextureTests.m */,
 				75DAC8B01A4240BE003F8244 /* CCImageTests.m */,
+				F61927431A8DABC50048C26C /* CCStateMachineTests.m */,
 				755569EC1856361100ED1B0F /* Supporting Files */,
 				E525F25081EB1E197CD567E4 /* Packages */,
 				E525FE52BE5D10499A27CE7C /* CCSpriteFrameCacheTests.m */,
@@ -717,6 +723,7 @@
 				A664A4EE18A3D9B8006184B8 /* PositioningTest.m */,
 				839B149E19CC1E440000E5E2 /* CCPackageTest.m */,
 				D35C2D261A1BC83F00FF96B0 /* CCViewportNodeTest.m */,
+				F61927501A8DB4E20048C26C /* CCStateMachineTest.m */,
 			);
 			name = Tests;
 			path = "cocos2d-ui-tests/tests";
@@ -1356,6 +1363,7 @@
 				E525F0C6F4B0C3F0BCAD1CA1 /* CCFileLocatorTests.m in Sources */,
 				E525FAC4141DA9B33B972BC0 /* CCFileLocatorDatabaseTests.m in Sources */,
 				E525FB731133965ECDFF5BBE /* FileSystemTestCase.m in Sources */,
+				F61927441A8DABC50048C26C /* CCStateMachineTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1383,6 +1391,7 @@
 				7587BDB3185A0A6900EEEFDE /* TextureTest.m in Sources */,
 				D3C9C867188078B900C58900 /* CCSchedulerTest.m in Sources */,
 				7587BDB7185A64AD00EEEFDE /* ColorTest.m in Sources */,
+				F61927511A8DB4E20048C26C /* CCStateMachineTest.m in Sources */,
 				839B149F19CC1E440000E5E2 /* CCPackageTest.m in Sources */,
 				D340E10F185660BE006E605C /* TilemapTest.m in Sources */,
 				B7E2622117E7D3B2007067F0 /* MainMenu.m in Sources */,
@@ -1413,6 +1422,7 @@
 				D3763D3D19E734C5006C050D /* SpritePerformanceTest.m in Sources */,
 				D35C2D281A1BC83F00FF96B0 /* CCViewportNodeTest.m in Sources */,
 				D3763D3E19E734C5006C050D /* CCScrollViewTest.m in Sources */,
+				F61927521A8DB4E20048C26C /* CCStateMachineTest.m in Sources */,
 				D3763D3F19E734C5006C050D /* CCSchedulerTest.m in Sources */,
 				D3763D4119E734C5006C050D /* CCTransitionTest.m in Sources */,
 				D3763D4219E734C5006C050D /* CCResponderTest.m in Sources */,

@@ -13,11 +13,12 @@ extern NSString * const CCStateMachineErrorDomain;
 @class CCStateMachineBuilder;
 
 typedef enum : NSUInteger {
-    NoStateMachineError,
+    StateMachineNoError,
     UnknownStateName,
     UnknownEventName,
     IllegalTransition,
     ObjectBoundDeleted,
+    EventWhilePaused
 } StateMachineErrors;
 
 @interface CCStateMachine : NSObject
@@ -33,7 +34,7 @@ typedef enum : NSUInteger {
 /** Initialises a State Machine with the given states.  Designated initializer. */
 - (instancetype)initWithBuilder:(CCStateMachineBuilder *)builder;
 
-/** Trigger the given transition on the State Machine.  Returns true if the transition was successful, false otherwise.  If there was an error, the lastError property will be set.  If an event is triggered when the state machine is paused false is returned but lastError is nil. */
+/** Trigger the given transition on the State Machine.  Returns true if the transition was successful, false otherwise.  If there was an error, the lastError property will be set. */
 - (BOOL)trigger:(NSString *)eventName;
 
 /** Activate the state machine.  It will enter its start state. */

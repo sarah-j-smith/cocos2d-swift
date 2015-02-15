@@ -26,6 +26,7 @@ NSString * const CCStateMachineErrorDomain = @"CCStateMachineErrorDomain";
 
 - (NSString *)currentState
 {
+    if (_currentStateIndex == NSNotFound) return nil;
     return [_states objectAtIndex:_currentStateIndex];
 }
 
@@ -86,14 +87,15 @@ NSString * const CCStateMachineErrorDomain = @"CCStateMachineErrorDomain";
 {
     if (!_isRunning)
     {
-        NSLog(@"%@ is not running: ignoring trigger: %@", [self machineName], eventName);
-        _lastError = nil;
+        NSString *errStr = [NSString stringWithFormat:@"%@ is not running: ignoring trigger: %@", [self machineName], eventName];
+        _lastError = [NSError errorWithDomain:CCStateMachineErrorDomain code:EventWhilePaused userInfo:@{ NSLocalizedDescriptionKey : errStr }];;
         return NO;
     }
     NSUInteger eventIndex = [_events indexOfObject:eventName];
     if (eventIndex == NSNotFound)
     {
-        NSLog(@"Transition %@ not found on state machine: %@", eventName, [self machineName]);
+        NSString *errStr = [NSString stringWithFormat:@"Transition %@ not found on state machine: %@", eventName, [self machineName]];
+        _lastError = [NSError errorWithDomain:CCStateMachineErrorDomain code:UnknownEventName userInfo:@{ NSLocalizedDescriptionKey : errStr }];
         return NO;
     }
     BOOL success = NO;
@@ -114,7 +116,7 @@ NSString * const CCStateMachineErrorDomain = @"CCStateMachineErrorDomain";
         NSString *errStr = [NSString stringWithFormat:@"Invalid attempt to trigger %@ when in state: %@",
                             eventName, [self currentState]];
         _lastError = [NSError errorWithDomain:CCStateMachineErrorDomain
-                                         code:UnknownStateName
+                                         code:IllegalTransition
                                      userInfo:@{ NSLocalizedDescriptionKey : errStr }];
     }
     return success;
@@ -122,6 +124,7 @@ NSString * const CCStateMachineErrorDomain = @"CCStateMachineErrorDomain";
 
 - (void)doTransitionFromState:(NSUInteger)sourceState toState:(NSUInteger)destinationState withEvent:(NSString *)eventName
 {
+    // Internal helper method should never be called with invalid state index
     NSAssert(destinationState < [_states count], @"Cannot transition to illegal state!");
     _currentStateIndex = destinationState;
     NSArray *bindingsForState = [_bindings objectAtIndex:_currentStateIndex];
@@ -141,6 +144,7 @@ NSString * const CCStateMachineErrorDomain = @"CCStateMachineErrorDomain";
     _isRunning = YES;
     if (_currentStateIndex == NSNotFound)
     {
+        // Its the initial launch of the machine, not a resume after pause
         [self setCurrentState:_startState];
     }
 }
