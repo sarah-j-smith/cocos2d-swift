@@ -1084,7 +1084,7 @@ void FNTConfigRemoveCache( void )
 	if( ! CGPointEqualToPoint(point, self.anchorPoint) )
     {
 		[super setAnchorPoint:point];
-		[self createFontChars];
+		[self updateLabel];
 	}
 }
 
