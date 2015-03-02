@@ -51,6 +51,8 @@ typedef NS_ENUM(NSInteger, CCTransitionDirection)
     CCTransitionDirectionInvalid = -1,
 };
 
+@class CCRenderTexture;
+
 /**
  A transition animates the presentation of a new scene while moving the current scene out of view.
  A transition is optionally played when calling one of the presentScene:withTransition: methods of CCDirector.
@@ -179,6 +181,22 @@ typedef NS_ENUM(NSInteger, CCTransitionDirection)
  *  Default NO.
  */
 @property (nonatomic, getter = isIncomingSceneAnimated) BOOL incomingSceneAnimated;
+
+/// -----------------------------------------------------------------------
+/// @name For use with Custom Transitions
+/// -----------------------------------------------------------------------
+
+/**
+ *  CCRenderTexture, holding the incoming scene as a texture
+ *  Only valid after StartTransition has been called.
+ */
+@property (nonatomic, readonly) CCRenderTexture *incomingTexture;
+
+/**
+ *  CCRenderTexture, holding the outgoing scene as a texture
+ *  Only valid after StartTransition has been called.
+ */
+@property (nonatomic, readonly) CCRenderTexture *outgoingTexture;
 
 /// -----------------------------------------------------------------------
 /// @name Transition Running Time and Progress
